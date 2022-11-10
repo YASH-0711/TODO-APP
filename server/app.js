@@ -1,10 +1,33 @@
 const mongoose = require('mongoose')
 const express = require('express');
+const multer = require('multer')
 const app  = express();
 
 const DB = "mongodb+srv://yash:12345@cluster0.wpwahzr.mongodb.net/mernstack?retryWrites=true&w=majority"
 
 const { json } = require('express');
+
+const imgconfig = multer.diskStorage({
+    destination:(req,file,callback) => {
+        callback(null,"./uploads")
+    },
+    filename:(req,file,callback) => {
+        callback(null,`image-${Date.now()}. ${file.originalname}`)
+    }
+})
+
+const isImage = (req, file, callback) => {
+    if(file.mimeType.startsWith("image")){
+        callback(null, true)
+    }else{
+        callback(new Error("only image is allowed"))
+    }
+}
+
+const upload = multer({
+    storage:imgconfig,
+    fileFilter:isImage
+})
 
 app.use(express.json());
 // app.use(require('./router/auth'));
@@ -31,13 +54,19 @@ const userSchema =  mongoose.model('REGISTRATION',{
         type:String,
         required:true
     },
+    imgpath:{
+        type:String,
+        required:true,
+    }
 })
 
-app.post('/register', async (req, res) => {
+app.post('/register',  upload.single("photo"), async (req, res) => {
 
-    const {name, email ,  password, Cpassword} = req.body;
+    // const {filename} = req.file;
 
-    if(!name || !email  || !password || !Cpassword){
+    const {name, email ,  password, Cpassword, imgpath} = req.body;
+
+    if(!name || !email  || !password || !Cpassword ){
         return res.status(400).json({error:"Plz fill all fields"});
     }
 
@@ -54,7 +83,7 @@ app.post('/register', async (req, res) => {
         };
 
 
-        const user = new userSchema({name, email, password, Cpassword});
+        const user = new userSchema({name, email, password, Cpassword, imgpath});
 
         await  user.save();
   
@@ -71,7 +100,7 @@ app.post('/signin', async (req, res) => {
         const {email,password} = req.body;
 
         if(!email || !password){
-            return res.status(400).json({error:"Plz fill    email and password"})
+            return res.status(400).json({error:"Plz fill  email and password"})
         }
         
 

@@ -20,14 +20,18 @@ const Home = () => {
         email:"",
         password:"",
         Cpassword:"",
+        imgpath:"",
     });
+    // console.log(inpval)
 
-    // const [data , setData] = useState([]);
+
+    const [file , setFile] = useState("");
+    // console.log(file)
 
     const getData = (e) => {
 
-        const {value,name} = e.target;
-        // console.log(value,name);
+      const {value,name} = e.target;
+      console.log(value);
         setInpVal(() => {
             return {
                 ...inpval,
@@ -36,10 +40,15 @@ const Home = () => {
         })
     };
 
+    const getDatas = (e) => {
+      console.log(e.target.files[0])
+      setFile(e.target.files[0]);
+    }
+
     const addData = async (e) => {
         e.preventDefault();
 
-        const {name, email, password, Cpassword} = inpval;
+        const {name, email, password, Cpassword, imgpath} = inpval;
 
         const res = await fetch("/register", {
           method:"POST",
@@ -51,6 +60,7 @@ const Home = () => {
             email,
             password,
             Cpassword,
+            imgpath
           })
         });
 
@@ -124,7 +134,12 @@ const Home = () => {
 
               <Form.Group className="mb-3 col-lg-6" controlId="formBasicEmail">
                 <Form.Control type="Email" name="email" onChange={getData} placeholder="Your Email" />
+              </Form.Group>             
+              
+               <Form.Group className="mb-3 col-lg-6" controlId="formBasicfile">
+                <Form.Control type="file" name="imgpath" onChange={getData} placeholder="" />
               </Form.Group>
+
 
               <Form.Group className="mb-3 col-lg-6" controlId="formBasicPassword">
                 <Form.Control type="password" name="password" onChange={getData} placeholder="Password" />
